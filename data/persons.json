@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Eivind",
+    "weight": 75,
+    "gender": "m"
+  },
+  {
+    "id": 2,
+    "name": "Sigurd",
+    "weight": 80,
+    "gender": "m"
+  },
+  {
+    "id": 3,
+    "name": "Yara",
+    "weight": 60,
+    "gender": "f"
+  },
+  {
+    "id": 4,
+    "name": "Jerome",
+    "weight": 80,
+    "gender": "m"
+  },
+  {
+    "id": 5,
+    "name": "Donald",
+    "weight": 100,
+    "gender": "m"
+  }
+]
