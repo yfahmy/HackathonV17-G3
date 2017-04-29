@@ -10,6 +10,8 @@
         </tr>
       </table>
     </center>
+    <div id="bubbles">
+    </div>
   </div>
 </template>
 
@@ -200,9 +202,9 @@ export default {
       var bac = 12 * trans.length / (person.weight * 0.6) - 0.15 * hoursSinceStart
       person.currentBAC = bac
       this.sortTopDrunkest()
+      this.drawBubbles()
       return Math.round(bac * 100) / 100
     },
-
     getAlcoholLitre: function (drink) {
       switch (drink) {
         case 'beer':
@@ -211,7 +213,6 @@ export default {
           return 0.035 * 0.4
       }
     },
-
     calculateBAC: function (transaction) {
       var personID = transaction.person
       const person = this.persons[personID - 1]
@@ -235,13 +236,64 @@ export default {
       }
       return Math.round(bac * 100) / 100
     },
-
     getPerson: function (id) {
       for (var i = 0; i < this.persons.length; i++) {
         if (this.persons[i].id === id) {
           return this.persons[i]
         }
       }
+    },
+    drawBubbles: function () {
+      var diameter = 500
+      var format = this.$d3.format(',d')
+      var drunkPeople = this.persons
+      console.log('-----------------HITLER------------' + this.$d3)
+      var color = this.$d3.scaleOrdinal(this.$d3.schemeCategory20b)
+      var bubble = this.$d3.pack()
+        .size([diameter, diameter])
+        .padding(1.5)
+      var svg = this.$d3.select('bubbles')
+        .append('svg')
+        .attr('width', diameter)
+        .attr('height', diameter)
+        .attr('class', 'bubble')
+
+      this.$d3.json(this.persons, function (data) {
+        // convert numerical values from strings to numbers
+        data = drunkPeople.map(function (d) {
+          d.value = d.currentBAC
+          return d
+        })
+
+        var root = this.$d3.hierarchy(drunkPeople)
+        .sum(function (d) { return d.value })
+        .sort(function (a, b) { return b.value - a.value })
+
+        bubble(root)
+        // bubbles needs very specific format, convert data to this.
+        // var nodes = bubble.nodes({children: data}).filter(function (d) { return !d.children })
+
+        // setup the chart
+        var node = svg.selectAll('.node')
+             .data(root.children)
+             .enter().append('g')
+             .attr('class', 'node')
+             .attr('transform', function (d) { return 'translate(' + d.x + ',' + d.y + ')' })
+
+        node.append('title')
+           .text(function (d) { return d.data.className + ': ' + format(d.value) })
+
+        node.append('circle')
+           .attr('r', function (d) { return d.r })
+           .style('fill', function (d) {
+             return color(d.data.packageName)
+           })
+
+        node.append('text')
+           .attr('dy', '.3em')
+           .style('text-anchor', 'middle')
+           .text(function (d) { return d.data.className.substring(0, d.r / 3) })
+      })
     }
   }
 }
